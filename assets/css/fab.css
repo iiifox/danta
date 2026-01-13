@@ -1,0 +1,84 @@
+/* 容器固定在右下角 */
+.fab-container {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 10;
+}
+
+/* 顶部右上角容器（用于“明”按钮） */
+.fab-top-right {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 10;
+}
+
+/* 基础 FAB 样式 */
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    border: none;        /* 去掉默认边框 */
+    padding: 0;          /* 去掉默认内边距 */
+    outline: none;       /* 去掉 focus 黑圈 */
+}
+
+/* 悬停效果 */
+.fab:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 点击反馈 */
+.fab:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 去掉 Firefox 内阴影 */
+.fab::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/* 针对focus去掉outline */
+.fab:focus {
+    outline: none;
+}
+
+/* 不同颜色 */
+.fab-blue {
+    background: #1976d2;
+}
+.fab-green {
+    background: #2ecc71;
+}
+.fab-yellow {
+    background: #ffe60f;
+}
+.fab-red {
+    background: #e74c3c;
+}
+
+/* toast样式 */
+.fab-container .toast {
+    position: fixed;
+}

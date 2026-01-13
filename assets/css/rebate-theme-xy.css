@@ -1,0 +1,8 @@
+/* 星悦额外微调 */
+#xy-panel .channel-label {
+    color: #3186ff;
+}
+
+#xy-panel .channel-item {
+    border-left: 4px solid #3186ff;
+}

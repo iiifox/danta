@@ -1,0 +1,56 @@
+.notification-bell-container {
+    position: relative;
+    cursor: pointer;
+}
+
+/* 红点 */
+.badge-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    background: #f56c6c;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px white;
+}
+
+.notice-box {
+    display: none;
+    position: absolute; /* 相对于 notification-bell-container 定位 */
+    top: 50px; /* 顶部对齐容器 */
+    left: 50%; /* 容器水平居中 */
+    transform: translateX(-50%); /* 居中 */
+    background: #fff;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    z-index: 9999;
+    width: fit-content;
+    max-width: 62vw;
+    max-height: 62vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+/* 滚动条样式（可选美化） */
+.notice-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notice-box::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.notice-box::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+
+.notice-box.show {
+    display: block;
+}
+

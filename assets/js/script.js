@@ -179,7 +179,7 @@ function renderXyCards(timeBlocks) {
             channels: ["微信速额", "微信点额", "微信小额", "微信固额", "微信通额"]
         },
         qb: {
-            label: 'QB',
+            label: '微信QB',
             channels: ["微信单端", "微信扫码"]
         }
     };

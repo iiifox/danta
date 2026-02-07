@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+import * as QRCode from "qrcode";
 
 export async function onRequestPost({ request }) {
   try {
@@ -13,12 +13,10 @@ export async function onRequestPost({ request }) {
     }
 
     const url =
-      "https://myun.tenpay.com/mqq/pay/index.shtml" +
-      `?_wv=1027&app_jump=1&t=${token}`;
+      `https://myun.tenpay.com/mqq/pay/index.shtml?_wv=1027&app_jump=1&t=${token}`;
 
-    // 生成二维码（Buffer）
     const pngBuffer = await QRCode.toBuffer(url, {
-      width: 300,
+      width: 280,
       margin: 2,
     });
 

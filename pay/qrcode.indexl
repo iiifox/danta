@@ -83,7 +83,7 @@
       return;
     }
 
-    const res = await fetch("/qrcode", {
+    const res = await fetch("/api/qrcode", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

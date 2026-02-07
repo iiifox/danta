@@ -77,6 +77,10 @@
 .fab-red {
     background: #e74c3c;
 }
+.fab-ivory {
+    background: #fffff0;
+}
+
 
 /* toast样式 */
 .fab-container .toast {

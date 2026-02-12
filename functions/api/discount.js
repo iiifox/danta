@@ -178,6 +178,56 @@ async function parseGbo(lines, request, profit) {
     return gbo;
 }
 
+// ========== 解析新星悦折扣 ==========
+function parseXyn(lines, profit) {
+    const xyn = {};
+    const timeOrder = [];
+    let currentTimeKey = '00:00';
+
+    const specialMap = {"直拉": "钱包直拉"};
+    const channelsFirstIndex = new Map();
+
+    for (const line of lines) {
+        // 时间匹配
+        if (line.match(/^(\d{2}):(\d{2})$/)) {
+            currentTimeKey = line;
+            continue;
+        }
+        if (!(currentTimeKey in xyn)) {
+            xyn[currentTimeKey] = {};
+            timeOrder.push(currentTimeKey);
+        }
+
+        // 渠道行匹配
+        const m = line.match(/^(.*?)\s*(\d+)/);
+        if (m && currentTimeKey) {
+            let channel = m[1];
+            const matchedKey = Object.keys(specialMap).find(k => channel.includes(k));
+            if (matchedKey) channel = specialMap[matchedKey];
+            xyn[currentTimeKey][channel] = formatAndRound(m[2], profit);
+            if (!channelsFirstIndex.has(channel)) {
+                channelsFirstIndex.set(channel, timeOrder.indexOf(currentTimeKey));
+            }
+        }
+    }
+
+    // 补全缺失值（按时间填充）
+    const channelsOrder = Array.from(channelsFirstIndex.keys());
+    timeOrder.forEach((time, timeIndex) => {
+        const newObj = {};
+        channelsOrder.forEach(channel => {
+            if (timeIndex < channelsFirstIndex.get(channel)) {
+                newObj[channel] = 1;
+            } else {
+                newObj[channel] = xyn[time][channel] ?? xyn[timeOrder[timeIndex - 1]][channel];
+            }
+        });
+        xyn[time] = newObj;
+    });
+
+    return xyn;
+}
+
 
 export async function onRequest({request}) {
     const profit = Number(new URL(request.url).searchParams.get("profit") || 0);
@@ -248,5 +298,45 @@ export async function onRequest({request}) {
     const xy = parseXy(xyLines, profit, xd);
     const gbo = await parseGbo(gboLines, request, profit);
 
-    return new Response(JSON.stringify({ date, xd, xy, gbo}), {headers: {'Content-Type': 'application/json'}});
+    // 发起请求
+    const respn = await fetch(new URL(`/discount/${date.replace(/-/g, '/')}n.txt`, new URL(request.url).origin));
+    if (!respn.ok) return new Response(JSON.stringify({error: '数据源获取失败'}), {
+        status: 502,
+        headers: {'Content-Type': 'application/json'}
+    });
+
+    let xynLines = []
+    const linens = (await resp.text()).split('\n').map(s => s.trim()).filter(Boolean);
+    for (const line of linens) {
+        // 改价
+        if (/^\d{4}开始/.test(line)) {
+            // 提取开头的四位数字
+            const timeNum = line.slice(0, 4);
+            // 拆分小时和分钟，拼接冒号
+            const hour = timeNum.slice(0, 2);
+            const minute = timeNum.slice(2);
+            xynLines.push(`${hour}:${minute}`);
+        }
+        // 过点或者空行之类的
+        if (line.includes("过点") || line.includes("星悦") || /^\s*$/.test(line)) {
+            continue;
+        }
+        // 判断整行是否是「中文+空格+数字」格式，一行一个渠道报价
+        if (/^[\u4e00-\u9fa5]+\s+\d+$/.test(line)) {
+            xynLines.push(line);
+        } else {
+            // 不符合上述格式，先按空格拆分片段。遍历每个片段，处理成「中文 数字」后推入数组
+            line.split(/\s+/).forEach(segment => {
+                // 提取片段中的中文关键词和数字
+                const match = segment.match(/([\u4e00-\u9fa5]+)(\d+)/);
+                if (match) {
+                    const formatted = `${match[1]} ${match[2]}`;
+                    xynLines.push(formatted);
+                }
+            });
+        }
+    }
+    const xyn = parseXyn(xynLines, profit);
+
+    return new Response(JSON.stringify({ date, xd, xy, gbo, xyn}), {headers: {'Content-Type': 'application/json'}});
 }

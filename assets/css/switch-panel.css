@@ -1,8 +1,17 @@
-/* ========== 转换面板按钮样式 ========== */
+.rebate-title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap; /* 禁止换行 */
+    gap: 8px; /* 标题和链接/按钮之间的间距 */
+}
+
 .switch-panel-container {
-    position: fixed;
-    top: 32px;
-    right: 32px;
+    /* 绝对定位到标题行的最右侧 */
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%); /* 垂直居中 */
     z-index: 11;
     display: flex;
     align-items: center;
@@ -11,12 +20,12 @@
 
 .switch-btn {
     width: auto;
-    padding: 12px 20px;
+    padding: 8px 16px; /* 适当缩小按钮，适配标题行 */
     border-radius: 20px;
     background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
     border: none;
-    font-size: 14px;
+    font-size: 12px; /* 缩小字体 */
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
@@ -27,7 +36,7 @@
 }
 
 .switch-btn:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px); /* 缩小hover上移距离 */
     box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
     background: linear-gradient(135deg, #3daae6, #2c77a0);
 }
@@ -36,4 +45,8 @@
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
 }
-/* ======================================= */
+
+/* 给标题增加右侧内边距，避免文字被按钮遮挡 */
+.rebate-title {
+    padding-right: 180px; /* 按钮宽度+间距，根据实际调整 */
+}

@@ -469,7 +469,7 @@ function renderTimeTabs(timeBlocks) {
     }, 120);
 }
 
-function initPanelSwitch(xdTemplate) {
+function initPanelSwitch() {
     // 改为事件委托，监听父容器点击，避免重复绑定
     const panel = document.getElementById('unified-panel');
     panel.addEventListener('click', (e) => {
@@ -576,31 +576,27 @@ async function loadData() {
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
-        
         // 渲染星悦数据
         const xyTimeBlocks = Object.entries(discountData.xy || {})
             .map(([time, channels]) => ({
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
-
         // 存储数据供切换使用
         window.discountData = {
             xdTimeBlocks,
             xyTimeBlocks,
             xdTemplate: discountData.xd?.template
         };
-
         // 初始化面板切换按钮
-        initPanelSwitch(discountData.xd?.template);
-
+        initPanelSwitch();
         // 首次渲染小刀
         currentPanelType = 'xd';
         renderXdCards(xdTimeBlocks);
         initCopyRateButton(discountData.xd?.template);
         await initCopyJsButton(profitParam, dateParam);
-
         renderTimeTabs(xdTimeBlocks);
+        
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});
 

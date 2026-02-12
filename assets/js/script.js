@@ -485,7 +485,7 @@ function renderXyTimeTabs(timeBlocks) {
     });
 
     // 重新绑定滚动监听（先移除旧监听，避免重复）
-    const rebateContainer = document.querySelector('#xypanel .rebate-slides');
+    const rebateContainer = document.querySelector('#xy-panel .rebate-slides');
     // 移除旧监听（通过命名函数实现）
     if (rebateContainer._tabScrollHandler) {
         rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);

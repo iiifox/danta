@@ -1,6 +1,9 @@
 // 全局存储最新链接
 let systemHrefs = {};
 
+// ========== 面板切换状态 ==========
+let currentPanelType = 'xd'; // 'xd' 或 'xy'
+
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
     try {
@@ -15,7 +18,10 @@ async function fetchSystemHrefs() {
 
 // ========== 小刀 ==========
 function renderXdCards(timeBlocks) {
-    const panel = document.getElementById('xd-panel');
+    // 只有当前面板是 'xd' 时才渲染
+    if (currentPanelType !== 'xd') return;
+    
+    const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
     // 清空容器
@@ -131,29 +137,33 @@ function renderXdCards(timeBlocks) {
 
 // 初始化复制按钮功能
 function initCopyRateButton(templateData) {
-    const copyBtn = document.getElementById('copyRatesBtn');
+    const copyBtn = document.getElementById('copyBtn');
     if (!copyBtn) return;
 
     copyBtn.addEventListener('click', () => {
-        if (!templateData) {
-            showToast('无可用费率数据（xd.template不存在）', true);
-            return;
+        // 根据当前面板类型决定复制内容
+        if (currentPanelType === 'xd') {
+            if (!templateData) {
+                showToast('无可用费率数据（xd.template不存在）', true, 'panel-toast');
+                return;
+            }
+            navigator.clipboard.writeText(templateData)
+                .then(() => showToast('费率已复制到剪贴板', false, 'panel-toast'))
+                .catch(err => {
+                    showToast('复制失败，请手动复制', true, 'panel-toast');
+                    console.error('复制失败:', err);
+                });
         }
-
-        // 复制xd.template内容到剪贴板
-        navigator.clipboard.writeText(templateData)
-            .then(() => showToast('费率已复制到剪贴板', false))
-            .catch(err => {
-                showToast('复制失败，请手动复制', true);
-                console.error('复制失败:', err);
-            });
     });
 }
 
 
 // ========== 星悦 ==========
 function renderXyCards(timeBlocks) {
-    const panel = document.getElementById('xy-panel');
+    // 只有当前面板是 'xy' 时才渲染
+    if (currentPanelType !== 'xy') return;
+    
+    const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
     // 清空容器
@@ -266,9 +276,6 @@ function renderXyCards(timeBlocks) {
 }
 
 async function initCopyJsButton(profitParam, dateParam) {
-    const copyBtn = document.getElementById('copyJsBtn');
-    if (!copyBtn) return;
-
     // 拼接带 profit date 的接口
     let apiUrl = "/api/xyJsCode";
     const queryParams = new URLSearchParams();
@@ -277,20 +284,25 @@ async function initCopyJsButton(profitParam, dateParam) {
     const queryString = queryParams.toString();
     if (queryString) apiUrl += `?${queryString}`;
     // 请求
-    const text = await fetch(apiUrl).then(r => r.text());
+    const xyText = await fetch(apiUrl).then(r => r.text());
 
+    const copyBtn = document.getElementById('copyBtn');
+    if (!copyBtn) return;
+
+    // 修改原始监听器，使其同时支持两种复制
     copyBtn.addEventListener('click', () => {
-        if (!text) {
-            showToast('无可用费率数据', true, 'xy-toast');
-            return;
+        if (currentPanelType === 'xy') {
+            if (!xyText) {
+                showToast('无可用费率数据', true, 'panel-toast');
+                return;
+            }
+            navigator.clipboard.writeText(xyText)
+                .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'panel-toast'))
+                .catch(err => {
+                    showToast('复制失败，请手动复制', true, 'panel-toast');
+                    console.error('复制失败:', err);
+                });
         }
-        // 复制xy费率脚本代码内容到剪贴板
-        navigator.clipboard.writeText(text)
-            .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xy-toast'))
-            .catch(err => {
-                showToast('复制失败，请手动复制', true, 'xy-toast');
-                console.error('复制失败:', err);
-            });
     });
 }
 
@@ -348,6 +360,45 @@ function showToast(message, isError = false, containerId = 'xd-toast') {
     if (isError) notification.classList.add('error');
     notification.classList.add('show');
     setTimeout(() => notification.classList.remove('show'), 3000);
+}
+
+// ========== 新增：面板切换函数 ==========
+function initPanelSwitch(xdTemplate) {
+    const switchBtn = document.getElementById('switchPanelBtn');
+    if (!switchBtn) return;
+
+    const panel = document.getElementById('unified-panel');
+    const copyBtn = document.getElementById('copyBtn');
+
+    switchBtn.addEventListener('click', () => {
+        if (currentPanelType === 'xd') {
+            // 切换到星悦
+            currentPanelType = 'xy';
+            switchBtn.textContent = '⭐ 切换为小刀';
+            copyBtn.textContent = '复制费率代码';
+            
+            // 清空并重新渲染
+            panel.querySelector('.rebate-slides').innerHTML = '';
+            renderXyCards(window.discountData.xyTimeBlocks);
+        } else {
+            // 切换到小刀
+            currentPanelType = 'xd';
+            switchBtn.textContent = '★ 切换为星悦';
+            copyBtn.textContent = '复制费率';
+            
+            // 清空并重新渲染
+            panel.querySelector('.rebate-slides').innerHTML = '';
+            renderXdCards(window.discountData.xdTimeBlocks);
+        }
+
+        // 重置滚动位置
+        const slides = panel.querySelector('.rebate-slides');
+        if (slides) slides.scrollLeft = 0;
+
+        // 重新触发时间标签点击（如果有）
+        const lastTab = document.querySelector('.rebate-tabs .rebate-tab.active');
+        if (lastTab) lastTab.click();
+    });
 }
 
 // === 检测“明天”的折扣文件是否存在，存在则在右上角创建红色“明”FAB ===
@@ -409,7 +460,6 @@ async function loadData() {
         if (!dateParam) {
             checkAndCreateTomorrowFab(baseDate);
         }
-        // === end 新增逻辑 ===
 
         // 动态设置费率展示标题
         if (discountData.date) {
@@ -426,18 +476,28 @@ async function loadData() {
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
-        renderXdCards(xdTimeBlocks);
-        // 初始化复制小刀费率按钮
-        initCopyRateButton(discountData.xd?.template);
-
+        
         // 渲染星悦数据
         const xyTimeBlocks = Object.entries(discountData.xy || {})
             .map(([time, channels]) => ({
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
-        renderXyCards(xyTimeBlocks);
-        // 初始化复制星悦费率脚本按钮
+
+        // 存储数据供切换使用
+        window.discountData = {
+            xdTimeBlocks,
+            xyTimeBlocks,
+            xdTemplate: discountData.xd?.template
+        };
+
+        // 初始化面板切换按钮
+        initPanelSwitch(discountData.xd?.template);
+
+        // 首次渲染小刀
+        currentPanelType = 'xd';
+        renderXdCards(xdTimeBlocks);
+        initCopyRateButton(discountData.xd?.template);
         await initCopyJsButton(profitParam, dateParam);
 
         // === 共用 rebate-tabs（只渲染一次） ===

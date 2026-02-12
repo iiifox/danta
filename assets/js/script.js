@@ -62,7 +62,7 @@ function renderXdCards(timeBlocks) {
         const timeTitle = document.createElement('h2');
         timeTitle.className = 'rebate-title';
         // 创建文本节点
-        const titleText = document.createTextNode(`小刀${(index === 0 && timeBlocks.length === 1) ? '' : `(${block.time}开始)`}`);
+        const titleText = document.createTextNode("小刀");
         // 创建链接
         const webLink = document.createElement('a');
         webLink.href = systemHrefs.xdWeb;
@@ -219,7 +219,7 @@ function renderXyCards(timeBlocks) {
         const timeTitle = document.createElement('h2');
         timeTitle.className = 'rebate-title';
         // 创建文本节点
-        const titleText = document.createTextNode(`星悦${(index === 0 && timeBlocks.length === 1) ? '' : `(${block.time}开始)`}`);
+        const titleText = document.createTextNode("星悦");
         // 创建链接
         const link = document.createElement('a');
         link.href = systemHrefs.xyWeb;

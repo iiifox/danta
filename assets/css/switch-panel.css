@@ -1,0 +1,39 @@
+/* ========== 转换面板按钮样式 ========== */
+.switch-panel-container {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.switch-btn {
+    width: auto;
+    padding: 12px 20px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.switch-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+    background: linear-gradient(135deg, #3daae6, #2c77a0);
+}
+
+.switch-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+}
+/* ======================================= */

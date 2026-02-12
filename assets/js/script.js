@@ -374,7 +374,7 @@ function renderXynCards(timeBlocks) {
         const timeTitle = document.createElement('h2');
         timeTitle.className = 'rebate-title';
         // 创建文本节点
-        const titleText = document.createTextNode("星悦");
+        const titleText = document.createTextNode("新星悦");
         // 创建链接
         const link = document.createElement('a');
         link.href = systemHrefs.xyWeb;

@@ -4,6 +4,7 @@ let systemHrefs = {};
 // ========== 面板切换状态 ==========
 let currentPanelType = 'xd'; // 'xd' 或 'xy'
 
+
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
     try {
@@ -20,7 +21,7 @@ async function fetchSystemHrefs() {
 function renderXdCards(timeBlocks) {
     // 只有当前面板是 'xd' 时才渲染
     if (currentPanelType !== 'xd') return;
-    
+
     const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
@@ -72,10 +73,21 @@ function renderXdCards(timeBlocks) {
         clientLink.href = systemHrefs.xdClient;
         clientLink.target = '_blank';
         clientLink.textContent = systemHrefs.xdClient;
-        // 组装
+        // 🔴 新增：创建切换按钮容器并插入标题
+        const switchContainer = document.createElement('div');
+        switchContainer.className = 'switch-panel-container';
+        switchContainer.id = 'switchPanelContainer';
+        const switchBtn = document.createElement('button');
+        switchBtn.className = 'switch-btn';
+        switchBtn.id = 'switchPanelBtn';
+        switchBtn.textContent = currentPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
+        switchContainer.appendChild(switchBtn);
+
+        // 组装标题
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(webLink);
         timeTitle.appendChild(clientLink);
+        timeTitle.appendChild(switchContainer); // 🔴 插入按钮
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染
@@ -150,7 +162,7 @@ function initCopyRateButton(templateData) {
             navigator.clipboard.writeText(templateData)
                 .then(() => showToast('费率已复制到剪贴板', false, 'panel-toast'))
                 .catch(err => {
-                    showToast('复制失败，请手动复制', true, 'panel-toast');
+                    showToast('复制失败，请手动��制', true, 'panel-toast');
                     console.error('复制失败:', err);
                 });
         }
@@ -162,7 +174,7 @@ function initCopyRateButton(templateData) {
 function renderXyCards(timeBlocks) {
     // 只有当前面板是 'xy' 时才渲染
     if (currentPanelType !== 'xy') return;
-    
+
     const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
@@ -213,9 +225,19 @@ function renderXyCards(timeBlocks) {
         link.href = systemHrefs.xyWeb;
         link.target = '_blank';
         link.textContent = '网页入口';
-        // 组装
+        // 🔴 新增切换按钮
+        const switchContainer = document.createElement('div');
+        switchContainer.className = 'switch-panel-container';
+        switchContainer.id = 'switchPanelContainer';
+        const switchBtn = document.createElement('button');
+        switchBtn.className = 'switch-btn';
+        switchBtn.id = 'switchPanelBtn';
+        switchBtn.textContent = currentPanelType === 'xy' ? '⭐ 切换为小刀' : '★ 切换为星悦';
+        switchContainer.appendChild(switchBtn);
+
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(link);
+        timeTitle.appendChild(switchContainer); // 🔴 插入按钮
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染
@@ -448,40 +470,34 @@ function renderTimeTabs(timeBlocks) {
 }
 
 function initPanelSwitch(xdTemplate) {
-    const switchBtn = document.getElementById('switchPanelBtn');
-    if (!switchBtn) return;
-
+    // 改为事件委托，监听父容器点击，避免重复绑定
     const panel = document.getElementById('unified-panel');
-    const copyBtn = document.getElementById('copyBtn');
+    panel.addEventListener('click', (e) => {
+        if (!e.target.matches('#switchPanelBtn')) return;
 
-    switchBtn.addEventListener('click', () => {
+        const switchBtn = e.target;
+        const copyBtn = document.getElementById('copyBtn');
+        const slides = panel.querySelector('.rebate-slides');
+
         if (currentPanelType === 'xd') {
             // 切换到星悦
             currentPanelType = 'xy';
             switchBtn.textContent = '⭐ 切换为小刀';
             copyBtn.textContent = '复制费率代码';
-
-            // 清空并重新渲染星悦面板
-            panel.querySelector('.rebate-slides').innerHTML = '';
+            slides.innerHTML = '';
             renderXyCards(window.discountData.xyTimeBlocks);
-            // 👉 关键：切换后渲染星悦的时间标签
-            renderTimeTabs(window.discountData.xyTimeBlocks);
         } else {
             // 切换到小刀
             currentPanelType = 'xd';
             switchBtn.textContent = '★ 切换为星悦';
             copyBtn.textContent = '复制费率';
-
-            // 清空并重新渲染小刀面板
-            panel.querySelector('.rebate-slides').innerHTML = '';
+            slides.innerHTML = '';
             renderXdCards(window.discountData.xdTimeBlocks);
-            // 👉 关键：切换后渲染小刀的时间标签
-            renderTimeTabs(window.discountData.xdTimeBlocks);
         }
 
-        // 重置滚动位置
-        const slides = panel.querySelector('.rebate-slides');
-        if (slides) slides.scrollLeft = 0;
+        slides.scrollLeft = 0;
+        const lastTab = document.querySelector('.rebate-tabs .rebate-tab.active');
+        if (lastTab) lastTab.click();
     });
 }
 

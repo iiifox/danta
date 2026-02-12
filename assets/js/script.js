@@ -386,7 +386,7 @@ function showToast(message, isError = false, containerId = 'xd-toast') {
 
 // 重构：可复用的标签渲染函数（支持切换面板时更新）
 function renderTimeTabs(timeBlocks) {
-    const tabsContainer = document.querySelector('.rebate-tabs');
+    const tabsContainer = document.getElementById('xd-tabs');
     if (!tabsContainer) return;
 
     // 清空旧内容
@@ -496,7 +496,7 @@ function initPanelSwitch(xdTemplate) {
         }
 
         slides.scrollLeft = 0;
-        const lastTab = document.querySelector('.rebate-tabs .rebate-tab.active');
+        const lastTab = document.getElementById('xd-tabs .rebate-tab.active');
         if (lastTab) lastTab.click();
     });
 }

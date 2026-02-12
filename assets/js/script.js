@@ -328,6 +328,233 @@ async function initCopyJsButton(profitParam, dateParam) {
     });
 }
 
+// ========== 新的星悦 ==========
+function renderXynCards(timeBlocks) {
+    const panel = document.getElementById('xy-panel');
+    const container = panel.querySelector('.rebate-slides');
+
+    // 清空容器
+    container.innerHTML = '';
+
+    if (!timeBlocks || timeBlocks.length === 0) {
+        container.innerHTML = '<p>暂无报价</p>';
+        return;
+    }
+
+    // 渠道太多，按组分好
+    const groups = {
+        qianbao: {
+            label: '钱包',
+            channels: ["普通", "加速", "超速", "极速", "秒拉", "钱包直拉"]
+        },
+        teshu: {
+            label: '特殊',
+            channels: ["超怪", "怪额"]
+        },
+        weixin: {
+            label: '微信',
+            channels: ["微信通额", "微信点额", "微信固额", "微信小额", "微信速额"]
+        },
+        qb: {
+            label: '微信QB',
+            channels: ["微信单端", "微信扫码"]
+        }
+    };
+
+    // 存储每个渠道上一次的折扣值
+    const lastDiscountByChannel = {};
+
+    // === 渲染 折扣slide ===
+    timeBlocks.forEach((block, index) => {
+        // 创建时间块面板
+        const slide = document.createElement('div');
+        slide.className = 'rebate-slide';
+        slide.dataset.time = block.time;
+
+        const timeTitle = document.createElement('h2');
+        timeTitle.className = 'rebate-title';
+        // 创建文本节点
+        const titleText = document.createTextNode("星悦");
+        // 创建链接
+        const link = document.createElement('a');
+        link.href = systemHrefs.xyWeb;
+        link.target = '_blank';
+        link.textContent = '网页入口';
+        // 组装
+        timeTitle.appendChild(titleText);
+        timeTitle.appendChild(link);
+        slide.appendChild(timeTitle);
+
+        // 渠道分组进行渲染
+        Object.values(groups).forEach(groupInfo => {
+            const group = document.createElement('div');
+            group.className = 'rebate-group';
+
+            // 渠道标签
+            const channelSpan = document.createElement('span');
+            channelSpan.className = 'channel-label';
+            channelSpan.textContent = groupInfo.label;
+            group.appendChild(channelSpan);
+
+            // 渠道列表
+            const channelList = document.createElement('div');
+            channelList.className = 'channel-list';
+            // 渲染标签当中每个渠道（渠道列表）
+            groupInfo.channels.forEach(channelName => {
+                const item = block.rates.find(i => i.channel === channelName);
+                if (!item) return;
+
+                // 颜色判定（默认黑色 涨价红色 降价绿色）
+                let color = 'black';
+                if (index > 0) {
+                    const last = lastDiscountByChannel[channelName];
+                    if (last !== undefined) {
+                        if (item.discount > last) color = 'red';
+                        else if (item.discount < last) color = 'green';
+                    }
+                }
+
+                const channelItem = document.createElement('div');
+                channelItem.className = 'channel-item';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'channel-name';
+                nameSpan.textContent = channelName;
+
+                const discountSpan = document.createElement('span');
+                discountSpan.className = 'channel-discount';
+                discountSpan.textContent = item.discount;
+                discountSpan.style.color = color;
+
+                channelItem.appendChild(nameSpan);
+                channelItem.appendChild(discountSpan);
+                channelList.appendChild(channelItem);
+
+                // 更新当前渠道的 last discount
+                lastDiscountByChannel[channelName] = item.discount;
+            });
+
+            group.appendChild(channelList);
+            slide.appendChild(group);
+        });
+
+        container.appendChild(slide);
+    });
+}
+
+// 标签渲染函数
+function renderXyTimeTabs(timeBlocks) {
+    const tabsContainer = document.getElementById('xy-tabs');
+    if (!tabsContainer) return;
+
+    // 清空旧内容
+    tabsContainer.innerHTML = '';
+
+    // 如果只有一个时间块，隐藏标签容器
+    if (!timeBlocks || timeBlocks.length <= 1) {
+        tabsContainer.style.display = 'none';
+        return;
+    }
+
+    // 显示标签容器并创建 tabs
+    tabsContainer.style.display = '';
+    timeBlocks.forEach((block, index) => {
+        const tab = document.createElement('div');
+        tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
+        tab.textContent = block.time;
+        tab.dataset.time = block.time;
+
+        tab.addEventListener('click', () => {
+            // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
+            const rebateSlides = document.querySelectorAll('#xy-panel .rebate-slide');
+            const rebateSlide = rebateSlides[index];
+            if (rebateSlide) {
+                const rebateContainer = document.querySelector('#xy-panel .rebate-slides');
+                if (rebateContainer) rebateContainer.scrollTo({
+                    left: rebateSlide.offsetLeft,
+                    behavior: 'smooth'
+                });
+                else rebateSlide.scrollIntoView({behavior: 'smooth'});
+            }
+            // 更新标签高亮
+            tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+
+        tabsContainer.appendChild(tab);
+    });
+
+    // 重新绑定滚动监听（先移除旧监听，避免重复）
+    const rebateContainer = document.querySelector('#xypanel .rebate-slides');
+    // 移除旧监听（通过命名函数实现）
+    if (rebateContainer._tabScrollHandler) {
+        rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
+    }
+
+    // 定义滚动监听函数并挂载到容器上（便于移除）
+    rebateContainer._tabScrollHandler = function () {
+        let tOut;
+        return () => {
+            if (tOut) clearTimeout(tOut);
+            tOut = setTimeout(() => {
+                const slides = rebateContainer.querySelectorAll('.rebate-slide');
+                if (!slides.length) return;
+                const center = rebateContainer.scrollLeft + rebateContainer.clientWidth / 2;
+                let bestIdx = 0;
+                let bestDist = Infinity;
+                slides.forEach((s, i) => {
+                    const sCenter = s.offsetLeft + s.offsetWidth / 2;
+                    const d = Math.abs(sCenter - center);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestIdx = i;
+                    }
+                });
+                const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                if (tabs[bestIdx]) tabs[bestIdx].classList.add('active');
+            }, 50);
+        };
+    }();
+
+    // 绑定新的滚动监听
+    rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
+
+    // 默认滚到最后一个时间块
+    setTimeout(() => {
+        const lastTab = tabsContainer.querySelectorAll('.rebate-tab')[timeBlocks.length - 1];
+        if (lastTab) lastTab.click();
+    }, 120);
+}
+
+async function initXyJsButton(profitParam, dateParam) {
+    // 拼接带 profit date 的接口
+    let apiUrl = "/api/xynJsCode";
+    const queryParams = new URLSearchParams();
+    if (profitParam) queryParams.set('profit', profitParam);
+    if (dateParam) queryParams.set('date', dateParam);
+    const queryString = queryParams.toString();
+    if (queryString) apiUrl += `?${queryString}`;
+    // 请求
+    const xynText = await fetch(apiUrl).then(r => r.text());
+
+    const copyBtn = document.getElementById('xyBtn');
+    if (!copyBtn) return;
+
+    // 修改原始监听器，使其同时支持两种复制
+    copyBtn.addEventListener('click', () => {
+        if (!xynText) {
+            showToast('无可用费率数据', true, 'xy-toast');
+            return;
+        }
+        navigator.clipboard.writeText(xynText)
+            .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xy-toast'))
+            .catch(err => {
+                showToast('复制失败，请手动复制', true, 'xy-toast');
+                console.error('复制失败:', err);
+            });
+    });
+}
 
 // ========== GBO ==========
 function renderGbo(gbo) {
@@ -596,6 +823,16 @@ async function loadData() {
         initCopyRateButton(discountData.xd?.template);
         await initCopyJsButton(profitParam, dateParam);
         renderTimeTabs(xdTimeBlocks);
+
+        // 渲染新的星悦数据
+        const xynTimeBlocks = Object.entries(discountData.xyn || {})
+            .map(([time, channels]) => ({
+                time,
+                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
+            }));
+        renderXynCards(xynTimeBlocks);
+        await initXyJsButton(profitParam, dateParam);
+        renderXyTimeTabs(xynTimeBlocks);
         
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});

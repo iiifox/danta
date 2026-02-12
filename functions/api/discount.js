@@ -306,7 +306,7 @@ export async function onRequest({request}) {
     });
 
     let xynLines = []
-    const linens = (await resp.text()).split('\n').map(s => s.trim()).filter(Boolean);
+    const linens = (await respn.text()).split('\n').map(s => s.trim()).filter(Boolean);
     for (const line of linens) {
         // 改价
         if (/^\d{4}开始/.test(line)) {

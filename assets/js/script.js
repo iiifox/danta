@@ -376,13 +376,19 @@ function renderXynCards(timeBlocks) {
         // 创建文本节点
         const titleText = document.createTextNode("新星悦");
         // 创建链接
-        const link = document.createElement('a');
-        link.href = systemHrefs.xyWeb;
-        link.target = '_blank';
-        link.textContent = '网页入口';
+        const webLink = document.createElement('a');
+        webLink.href = systemHrefs.xyWeb;
+        webLink.target = '_blank';
+        webLink.textContent = '网页入口';
+        // 最新客户端下载
+        const clientLink = document.createElement("a");
+        clientLink.href = systemHrefs.xyClient;
+        clientLink.target = '_blank';
+        clientLink.textContent = systemHrefs.xyClient;
         // 组装
         timeTitle.appendChild(titleText);
-        timeTitle.appendChild(link);
+        timeTitle.appendChild(webLink);
+        timeTitle.appendChild(clientLink);
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染

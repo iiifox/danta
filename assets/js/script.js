@@ -345,7 +345,7 @@ function renderXynCards(timeBlocks) {
     const groups = {
         qianbao: {
             label: '钱包',
-            channels: ["普通", "加速", "超速", "极速", "秒拉", "钱包直拉"]
+            channels: ["普通", "加速", "超速", "极速", "钱包直拉", "秒拉"]
         },
         teshu: {
             label: '特殊',

@@ -384,11 +384,23 @@ function renderXynCards(timeBlocks) {
         const clientLink = document.createElement("a");
         clientLink.href = systemHrefs.xyClient;
         clientLink.target = '_blank';
-        clientLink.textContent = systemHrefs.xyClient;
+        clientLink.textContent = "Win版客户端";
+        // 插件下载
+        const chajianLink = document.createElement("a");
+        chajianLink.href = systemHrefs.xyChajian;
+        chajianLink.target = '_blank';
+        chajianLink.textContent = "产码插件";
+        // 抓包工具下载
+        const zhuabaoLink = document.createElement("a");
+        zhuabaoLink.href = systemHrefs.xyZhuabao;
+        zhuabaoLink.target = '_blank';
+        zhuabaoLink.textContent = "抓包工具";
         // 组装
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(webLink);
         timeTitle.appendChild(clientLink);
+        timeTitle.appendChild(chajianLink);
+        timeTitle.appendChild(zhuabaoLink);
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染

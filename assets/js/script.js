@@ -4,9 +4,8 @@ let systemHrefs = {};
 // ========== 面板切换状态 ==========
 let currentPanelType = 'xd'; // 'xd' 或 'xy'
 
-// ========== 时间标签选中索引 ==========
+// ========== 时间标签选中索引（核心新增） ==========
 let activeTimeTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
-
 
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
@@ -486,8 +485,6 @@ function renderXyTimeTabs(timeBlocks) {
         tab.dataset.time = block.time;
 
         tab.addEventListener('click', () => {
-            // 核心新增：记录当前点击的索引
-            activeTimeTabIndex = index;
             // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
             const rebateSlides = document.querySelectorAll('#xy-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
@@ -535,11 +532,7 @@ function renderXyTimeTabs(timeBlocks) {
                 });
                 const tabs = tabsContainer.querySelectorAll('.rebate-tab');
                 tabs.forEach(t => t.classList.remove('active'));
-                if (tabs[bestIdx]) {
-                    tabs[bestIdx].classList.add('active');
-                    // 核心新增：滚动时更新选中索引
-                    activeTimeTabIndex = bestIdx;
-                }
+                if (tabs[bestIdx]) tabs[bestIdx].classList.add('active');
             }, 50);
         };
     }();
@@ -547,18 +540,10 @@ function renderXyTimeTabs(timeBlocks) {
     // 绑定新的滚动监听
     rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
 
-    // 默认选中时间块（首次选最后一个，切换后选记录的索引）
+    // 默认滚到最后一个时间块
     setTimeout(() => {
-        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
-        // 首次初始化：选最后一个并记录索引
-        if (activeTimeTabIndex === -1) {
-            activeTimeTabIndex = tabs.length - 1;
-        }
-        // 优先选记录的索引，兜底选最后一个
-        const targetTab = tabs[activeTimeTabIndex] || tabs[tabs.length - 1];
-        if (targetTab) {
-            targetTab.click();
-        }
+        const lastTab = tabsContainer.querySelectorAll('.rebate-tab')[timeBlocks.length - 1];
+        if (lastTab) lastTab.click();
     }, 120);
 }
 
@@ -671,6 +656,7 @@ function renderTimeTabs(timeBlocks) {
         tab.addEventListener('click', () => {
             // 核心新增：记录当前点击的索引
             activeTimeTabIndex = index;
+
             // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
             const rebateSlides = document.querySelectorAll('#unified-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
@@ -771,9 +757,10 @@ function initPanelSwitch() {
             renderXdCards(window.discountData.xdTimeBlocks);
         }
 
-        // slides.scrollLeft = 0;
+        slides.scrollLeft = 0;
         // 核心修改：根据记录的索引选中对应标签
-        const tabs = document.getElementById('xd-tabs').querySelectorAll('.rebate-tab');
+        const tabsContainer = document.getElementById('xd-tabs');
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
         // 用记录的索引，无则选最后一个
         const targetIndex = activeTimeTabIndex >= 0 ? activeTimeTabIndex : tabs.length - 1;
         if (tabs[targetIndex]) {

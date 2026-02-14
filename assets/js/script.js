@@ -4,6 +4,9 @@ let systemHrefs = {};
 // ========== 面板切换状态 ==========
 let currentPanelType = 'xd'; // 'xd' 或 'xy'
 
+// ========== 时间标签选中索引 ==========
+let activeTimeTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
+
 
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
@@ -483,6 +486,8 @@ function renderXyTimeTabs(timeBlocks) {
         tab.dataset.time = block.time;
 
         tab.addEventListener('click', () => {
+            // 核心新增：记录当前点击的索引
+            activeTimeTabIndex = index;
             // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
             const rebateSlides = document.querySelectorAll('#xy-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
@@ -530,7 +535,11 @@ function renderXyTimeTabs(timeBlocks) {
                 });
                 const tabs = tabsContainer.querySelectorAll('.rebate-tab');
                 tabs.forEach(t => t.classList.remove('active'));
-                if (tabs[bestIdx]) tabs[bestIdx].classList.add('active');
+                if (tabs[bestIdx]) {
+                    tabs[bestIdx].classList.add('active');
+                    // 核心新增：滚动时更新选中索引
+                    activeTimeTabIndex = bestIdx;
+                }
             }, 50);
         };
     }();
@@ -538,10 +547,18 @@ function renderXyTimeTabs(timeBlocks) {
     // 绑定新的滚动监听
     rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
 
-    // 默认滚到最后一个时间块
+    // 默认选中时间块（首次选最后一个，切换后选记录的索引）
     setTimeout(() => {
-        const lastTab = tabsContainer.querySelectorAll('.rebate-tab')[timeBlocks.length - 1];
-        if (lastTab) lastTab.click();
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 首次初始化：选最后一个并记录索引
+        if (activeTimeTabIndex === -1) {
+            activeTimeTabIndex = tabs.length - 1;
+        }
+        // 优先选记录的索引，兜底选最后一个
+        const targetTab = tabs[activeTimeTabIndex] || tabs[tabs.length - 1];
+        if (targetTab) {
+            targetTab.click();
+        }
     }, 120);
 }
 
@@ -740,15 +757,21 @@ function initPanelSwitch() {
             renderXdCards(window.discountData.xdTimeBlocks);
         }
 
-        slides.scrollLeft = 0;
-        const lastTab = document.getElementById('xd-tabs .rebate-tab.active');
-        if (lastTab) lastTab.click();
+        // slides.scrollLeft = 0;
+        // 核心修改：根据记录的索引选中对应标签
+        const tabsContainer = document.getElementById('xd-tabs');
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 用记录的索引，无则选最后一个
+        const targetIndex = activeTimeTabIndex >= 0 ? activeTimeTabIndex : tabs.length - 1;
+        if (tabs[targetIndex]) {
+            tabs[targetIndex].click();
+        }
     });
 }
 
 // === 检测“明天”的折扣文件是否存在，存在则在右上角创建红色“明”FAB ===
 async function checkAndCreateTomorrowFab(baseDate) {
-    const tomorrowStr = new Date(baseDate.getTime() + 1 * 24 * 3600_000).toISOString().slice(0, 10);            
+    const tomorrowStr = new Date(baseDate.getTime() + 1 * 24 * 3600_000).toISOString().slice(0, 10);
     let tomorrowDiscountUrl = '/api/discount';
     const qParam = new URLSearchParams();
     qParam.set('date', tomorrowStr);
@@ -760,7 +783,7 @@ async function checkAndCreateTomorrowFab(baseDate) {
         const div = document.createElement('div');
         div.className = 'fab-top-right';
         div.id = 'fabTopRight';
-        
+
         const a = document.createElement('a');
         a.className = 'fab fab-red';
         a.id = 'fabTomorrow';
@@ -768,7 +791,7 @@ async function checkAndCreateTomorrowFab(baseDate) {
         a.rel = 'noopener noreferrer';
         a.href = `/?date=${respD.date}`;
         a.textContent = '明';
-        
+
         div.appendChild(a);
         document.body.appendChild(div); // 或指定容器
     }
@@ -801,7 +824,6 @@ async function loadData() {
         const yesterdayStr = new Date(baseDate.getTime() - 1 * 24 * 3600_000).toISOString().slice(0, 10);
         document.getElementById('yesterday').href = `${window.location.origin}/?date=${yesterdayStr}`;
 
-        // 在 loadData() 中（baseDate 已存在）调用：
         if (!dateParam) {
             checkAndCreateTomorrowFab(baseDate);
         }
@@ -851,7 +873,7 @@ async function loadData() {
         renderXynCards(xynTimeBlocks);
         await initXyJsButton(profitParam, dateParam);
         renderXyTimeTabs(xynTimeBlocks);
-        
+
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});
 

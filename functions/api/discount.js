@@ -322,7 +322,7 @@ export async function onRequest({request}) {
             continue;
         }
         // 判断整行是否是「中文+空格+数字」格式，一行一个渠道报价
-        if (/^[\u4e00-\u9fa5]+\s+\d+$/.test(line)) {
+        if (/^[\u4e00-\u9fa5]+\s*\d+$/.test(line)) {
             xynLines.push(line);
         } else {
             // 不符合上述格式，先按空格拆分片段。遍历每个片段，处理成「中文 数字」后推入数组

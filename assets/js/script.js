@@ -397,12 +397,18 @@ function renderXynCards(timeBlocks) {
         zhuabaoLink.href = systemHrefs.xyZhuabao;
         zhuabaoLink.target = '_blank';
         zhuabaoLink.textContent = "抓包工具";
+        // 星悦智能任务
+        const smartTasksLink = document.createElement("a");
+        smartTasksLink.href = systemHrefs.xySmartTasks;
+        smartTasksLink.target = '_blank';
+        smartTasksLink.textContent = "星悦智能任务";
         // 组装
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(webLink);
         timeTitle.appendChild(clientLink);
         timeTitle.appendChild(chajianLink);
         timeTitle.appendChild(zhuabaoLink);
+        timeTitle.appendChild(smartTasksLink);
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染

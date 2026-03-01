@@ -16,7 +16,7 @@ title: GBO系统教程
 http://hxmm.vdvg82xr.top/main.html
 ```
 
-![](../img/gbo1.png)
+![](../assets/img/gbo1.png)
 
 设置答题都不见了；电脑点那两个地方没反应；www.baidu.com 拒绝连接。等所有情况，都只需要调出开发者工具（Ctrl+Shift+I或F12），点开Console(控制面板)，输入以下代码后回车即可
 ```javascript

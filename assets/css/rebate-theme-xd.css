@@ -8,13 +8,13 @@
 }
 
 /* 小刀悬浮提示（仅 data-tooltip 非空时生效） */
-#xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]) {
+#unified-panel .channel-item[data-tooltip]:not([data-tooltip=""]) {
     position: relative;
     cursor: help;
 }
 
 /* 小箭头 */
-#xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
+#unified-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
     content: '';
     position: absolute;
     bottom: 100%;
@@ -27,7 +27,7 @@
 }
 
 /* 提示框 */
-#xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
+#unified-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 100%;

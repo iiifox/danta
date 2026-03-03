@@ -363,6 +363,14 @@ function renderXynCards(timeBlocks) {
         }
     };
 
+    const dataTooltips = {
+        "微信通额": "100-1000整百",
+        "微信速额": "200-1000整百",
+        "微信固额": "30/50/100固定",
+        "微信小额": "30-99随机",
+        "微信点额": "10-99随机"
+    }
+
     // 存储每个渠道上一次的折扣值
     const lastDiscountByChannel = {};
 
@@ -440,6 +448,10 @@ function renderXynCards(timeBlocks) {
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'channel-name';
                 nameSpan.textContent = channelName;
+
+                if (dataTooltips[channelName]) {
+                    item.setAttribute('data-tooltip', dataTooltips[channelName]);
+                }
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';

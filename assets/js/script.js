@@ -148,7 +148,7 @@ function renderXdCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                }
+                };
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -473,7 +473,7 @@ function renderXynCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                }
+                };
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';

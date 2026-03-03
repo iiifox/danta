@@ -164,7 +164,7 @@ function initCopyRateButton(templateData) {
             navigator.clipboard.writeText(templateData)
                 .then(() => showToast('费率已复制到剪贴板', false, 'panel-toast'))
                 .catch(err => {
-                    showToast('复制失败，请手动��制', true, 'panel-toast');
+                    showToast('复制失败，请手动复制', true, 'panel-toast');
                     console.error('复制失败:', err);
                 });
         }
@@ -369,7 +369,7 @@ function renderXynCards(timeBlocks) {
         "微信固额": "30/50/100固定",
         "微信小额": "30-99随机",
         "微信点额": "10-99随机"
-    }
+    };
 
     // 存储每个渠道上一次的折扣值
     const lastDiscountByChannel = {};
@@ -450,7 +450,7 @@ function renderXynCards(timeBlocks) {
                 nameSpan.textContent = channelName;
 
                 if (dataTooltips[channelName]) {
-                    item.setAttribute('data-tooltip', dataTooltips[channelName]);
+                    channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
                 }
 
                 const discountSpan = document.createElement('span');

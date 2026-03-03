@@ -51,6 +51,24 @@ function renderXdCards(timeBlocks) {
         }
     };
 
+    const dataTooltips = {
+        "渠道A": "100-2000整百", 
+        "渠道B": "100-2000整百", 
+        "渠道C": "100-2000整百", 
+        "渠道D": "100-2000整百",
+        "渠道E": "100-2000整百", 
+        "渠道F": "100-2000整百", 
+        "渠道H（低价）": "100-2000整百", 
+        "Z1000": "固定1000的快速通道",
+        "渠道TA": "328/348/648固定", 
+        "渠道TB": "328/348/648固定", 
+        "渠道VA": "100-2000整百", 
+        "VB微信10起": "10/20/30居多", 
+        "VC微信50": "50为主", 
+        "VD100": "100为主", 
+        "VE200": "100-2000整百"
+    };
+
     // 存储每个渠道上一次的折扣值
     const lastDiscountByChannel = {};
 
@@ -127,6 +145,10 @@ function renderXdCards(timeBlocks) {
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'channel-name';
                 nameSpan.textContent = channelName;
+
+                if (dataTooltips[channelName]) {
+                    channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
+                }
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
